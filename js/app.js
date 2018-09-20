@@ -1,5 +1,14 @@
+'use strict'
+
+// game global identifiers
+var game = {
+  roadRows: [1,2,3],
+  tile: {width: 101, height: 83},
+  time: 0
+};
+
 // Enemies our player must avoid
-function Enemy() {
+function Enemy(x,y) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
@@ -7,8 +16,8 @@ function Enemy() {
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
 
-    this.x = 101;
-    this.y = 64;
+    this.x = x;
+    this.y = y;
 // The height of the opaque part of a ground tile is effectively given by:
 //   171 - 50 = 121
 // By inspection, the enemy image is centered about this opaque part.
@@ -24,15 +33,28 @@ function Enemy() {
 // That is, this.y(row) = row*83 - 19.
 
     this.vx = 100; // enemy velocity
+
+    this.timeLeftScreen;
+    this.onScreen = true;
 };
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
+  if(this.onScreen) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
     this.x += this.vx*dt;
+
+    // if this.x > threshold, remove enemy, respawn enemy
+    if (this.x > ctx.canvas.width) {
+      this.timeLeftScreen = game.time;
+      this.onScreen = false;
+      // this.x = -game.tile.width;
+    }
+  }
+  // if this.x > 0, then lane becomes available
 };
 
 // Draw the enemy on the screen, required method for game
@@ -63,7 +85,12 @@ Player.prototype.render = function() {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var enemy1 = new Enemy();
+
+var enemy1 = new Enemy(  -game.tile.width,
+  game.roadRows[ Math.floor(Math.random()*game.roadRows.length) ] * 83 - 19  );
+// y = n*83-19, where n is a randomly selected row of the road
+// every 20 s spawn another enemy until there are 3
+
 var allEnemies = [enemy1];
 var player = new Player();
 

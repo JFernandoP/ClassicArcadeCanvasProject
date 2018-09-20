@@ -22,7 +22,8 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
+        lastTime,
+        firstTime;
 
     canvas.width = 505;
     canvas.height = 606;
@@ -40,6 +41,12 @@ var Engine = (function(global) {
          */
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
+
+        global.game.time = now - firstTime;
+
+        // if( Math.round(global.game.time/10.0) % 100 === 0 ) {
+        //   console.log(global.game.time);
+        // }
 
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
@@ -64,7 +71,8 @@ var Engine = (function(global) {
      */
     function init() {
         reset();
-        lastTime = Date.now();
+        firstTime = Date.now();
+        lastTime = firstTime;
         main();
     }
 
@@ -138,7 +146,6 @@ var Engine = (function(global) {
             }
         }
 
-        // ctx.drawImage(Resources.get('images/black-tile.png'),0,0);
         renderEntities();
     }
 
@@ -151,7 +158,9 @@ var Engine = (function(global) {
          * the render function you have defined.
          */
         allEnemies.forEach(function(enemy) {
+          if(enemy.onScreen) {
             enemy.render();
+          }
         });
 
         player.render();
@@ -174,8 +183,7 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png',
-        'images/black-tile.png'
+        'images/char-boy.png'
     ]);
     Resources.onReady(init);
 
