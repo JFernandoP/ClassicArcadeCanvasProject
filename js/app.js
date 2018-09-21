@@ -36,9 +36,7 @@ function Enemy(x,y,vx) {
 
     this.timeLeftScreen;
     this.onScreen = true;
-    this.xRes = 0;
-    this.xResAccum = 0;
-    this.xInt;
+    this.xPix;
 };
 
 // Update the enemy's position, required method for game
@@ -48,18 +46,16 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    console.log(this.xInt, this.x, this.xRes, this.xResAccum);
+    // console.log(this.xPix, this.x);
     this.x += this.vx*dt;
-    this.xRes = Math.floor(this.x) - this.x;
-    this.xInt = Math.floor(this.x); // TODO: set to this.x
-    this.xResAccum += this.xRes;
+    // this.xPix = Math.round(this.x);
 
     // if this.x > threshold, remove enemy, respawn enemy
-    // if (this.x > ctx.canvas.width) {
-    if (this.x > -95) {
-      this.timeLeftScreen = game.time;
-      this.onScreen = false;
-      // this.x = -game.tile.width;
+    if (this.x > ctx.canvas.width) {
+    // if (this.x > -95) {
+      // this.timeLeftScreen = game.time;
+      // this.onScreen = false;
+      this.x = -game.tile.width;
     }
   }
   // if this.x > 0, then lane becomes available

@@ -88,19 +88,17 @@ var Engine = (function(global) {
       // if( Math.round(global.game.time/10.0) === 0 ) {
       //   constructBottomLaneEnemies();
       // }
-/*    if(
-        (Math.floor(Math.abs(allEnemies[0].x))%(game.tile.width)===100 ||
-         Math.floor(Math.abs(allEnemies[0].x))%game.tile.width===0 ||
-         Math.floor(Math.abs(allEnemies[0].x))%(game.tile.width)===1) &&
-          allEnemies[0].onScreen) {
+      // if(
+         // (allEnemies[0].xPix%(game.tile.width)===100 ||
+         //  allEnemies[0].xPix%(game.tile.width)===0 ||
+         //  allEnemies[0].xPix%(game.tile.width)===1) &&
+         //  allEnemies[0].onScreen) {
       // if(Math.round(global.game.time/10.0)%100===0) {
-        console.log(allEnemies[0].x);
-      }
-      if (allEnemies[0].x === 2*game.tile.width) {
+      if(allEnemies[0].x>2*game.tile.width && allEnemies.length===1) {
         allEnemies.push(
           new Enemy( -game.tile.width, game.roadRows[2] * 83 - 19, 100 )
         );
-      }*/
+      }
     }
 
     // function constructBottomLaneEnemies() {
