@@ -44,6 +44,7 @@ var Engine = (function(global) {
 
         global.game.time = now - firstTime;
 
+        structEnemies();
         // if( Math.round(global.game.time/10.0) % 100 === 0 ) {
         //   console.log(global.game.time);
         // }
@@ -73,7 +74,46 @@ var Engine = (function(global) {
         reset();
         firstTime = Date.now();
         lastTime = firstTime;
+        initEnemies();
         main();
+    }
+
+    function initEnemies() {
+      allEnemies.push( // bottom lane = roadRows[2] = tile row 3
+        new Enemy( -game.tile.width, game.roadRows[2] * 83 - 19, 100 )
+      );
+    }
+
+    function structEnemies() {
+      // if( Math.round(global.game.time/10.0) === 0 ) {
+      //   constructBottomLaneEnemies();
+      // }
+/*    if(
+        (Math.floor(Math.abs(allEnemies[0].x))%(game.tile.width)===100 ||
+         Math.floor(Math.abs(allEnemies[0].x))%game.tile.width===0 ||
+         Math.floor(Math.abs(allEnemies[0].x))%(game.tile.width)===1) &&
+          allEnemies[0].onScreen) {
+      // if(Math.round(global.game.time/10.0)%100===0) {
+        console.log(allEnemies[0].x);
+      }
+      if (allEnemies[0].x === 2*game.tile.width) {
+        allEnemies.push(
+          new Enemy( -game.tile.width, game.roadRows[2] * 83 - 19, 100 )
+        );
+      }*/
+    }
+
+    // function constructBottomLaneEnemies() {
+    // }
+
+    function constructEnemy() {
+      allEnemies.push(
+        new Enemy(
+          -game.tile.width,
+           game.roadRows[ Math.floor(Math.random()*game.roadRows.length) ] * 83
+            - 19,
+           100  )
+      );
     }
 
     /* This function is called by main (our game loop) and itself calls all

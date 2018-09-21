@@ -8,7 +8,7 @@ var game = {
 };
 
 // Enemies our player must avoid
-function Enemy(x,y) {
+function Enemy(x,y,vx) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
@@ -32,10 +32,13 @@ function Enemy(x,y) {
 // Enemy image position at row n is: n*83 - 19.
 // That is, this.y(row) = row*83 - 19.
 
-    this.vx = 100; // enemy velocity
+    this.vx = vx; // enemy velocity
 
     this.timeLeftScreen;
     this.onScreen = true;
+    this.xRes = 0;
+    this.xResAccum = 0;
+    this.xInt;
 };
 
 // Update the enemy's position, required method for game
@@ -45,10 +48,15 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+    console.log(this.xInt, this.x, this.xRes, this.xResAccum);
     this.x += this.vx*dt;
+    this.xRes = Math.floor(this.x) - this.x;
+    this.xInt = Math.floor(this.x); // TODO: set to this.x
+    this.xResAccum += this.xRes;
 
     // if this.x > threshold, remove enemy, respawn enemy
-    if (this.x > ctx.canvas.width) {
+    // if (this.x > ctx.canvas.width) {
+    if (this.x > -95) {
       this.timeLeftScreen = game.time;
       this.onScreen = false;
       // this.x = -game.tile.width;
@@ -86,12 +94,10 @@ Player.prototype.render = function() {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 
-var enemy1 = new Enemy(  -game.tile.width,
-  game.roadRows[ Math.floor(Math.random()*game.roadRows.length) ] * 83 - 19  );
 // y = n*83-19, where n is a randomly selected row of the road
 // every 20 s spawn another enemy until there are 3
 
-var allEnemies = [enemy1];
+var allEnemies = [];
 var player = new Player();
 
 
