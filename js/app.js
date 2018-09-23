@@ -2,19 +2,17 @@
 
 // game global identifiers
 var game = {
-  roadRows: [1,2,3],
-  tile: {width: 101, height: 83},
-  time: 0
+  // game tile rows available for character horizontal movement
+  enemiesNotFinalized: true,
+  lane: {top: 1, middle: 2, bottom: 3, grassShoulder: 4},
+  tile: {width: 101, height: 83}//,
+  // time: 0
 };
 
 // Enemies our player must avoid
 function Enemy(x,y,vx) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
-
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
-    this.sprite = 'images/enemy-bug.png';
 
     this.x = x;
     this.y = y;
@@ -34,31 +32,38 @@ function Enemy(x,y,vx) {
 
     this.vx = vx; // enemy velocity
 
-    this.timeLeftScreen;
-    this.onScreen = true;
-    this.xPix;
+    // The image/sprite for our enemies, this uses
+    // a helper we've provided to easily load images
+    if( this.vx > 0 ) {
+      this.sprite = 'images/enemy-bug.png';
+    } else {
+      this.sprite = 'images/enemy-bug-leftward.png';
+    }
+
+    // this.timeLeftScreen;
+    // this.onScreen = true;
 };
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-  if(this.onScreen) {
+  // if(this.onScreen) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    // console.log(this.xPix, this.x);
     this.x += this.vx*dt;
-    // this.xPix = Math.round(this.x);
 
-    // if this.x > threshold, remove enemy, respawn enemy
-    if (this.x > ctx.canvas.width) {
-    // if (this.x > -95) {
-      // this.timeLeftScreen = game.time;
-      // this.onScreen = false;
-      this.x = -game.tile.width;
+    if (this.vx > 0) {
+      if (this.x > ctx.canvas.width) {
+        // this.onScreen = false;
+        this.x = -game.tile.width;
+      }
+    } else {
+      if (this.x < -game.tile.width) {
+        this.x = 5*game.tile.width;
+      }
     }
-  }
-  // if this.x > 0, then lane becomes available
+  // }
 };
 
 // Draw the enemy on the screen, required method for game

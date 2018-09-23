@@ -42,9 +42,11 @@ var Engine = (function(global) {
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
 
-        global.game.time = now - firstTime;
+        // game.time = now - firstTime;
 
-        structEnemies();
+        if (game.enemiesNotFinalized) {
+          finalizeEnemies(allEnemies[1]);
+        }
         // if( Math.round(global.game.time/10.0) % 100 === 0 ) {
         //   console.log(global.game.time);
         // }
@@ -79,39 +81,30 @@ var Engine = (function(global) {
     }
 
     function initEnemies() {
-      allEnemies.push( // bottom lane = roadRows[2] = tile row 3
-        new Enemy( -game.tile.width, game.roadRows[2] * 83 - 19, 100 )
-      );
-    }
-
-    function structEnemies() {
-      // if( Math.round(global.game.time/10.0) === 0 ) {
-      //   constructBottomLaneEnemies();
-      // }
-      // if(
-         // (allEnemies[0].xPix%(game.tile.width)===100 ||
-         //  allEnemies[0].xPix%(game.tile.width)===0 ||
-         //  allEnemies[0].xPix%(game.tile.width)===1) &&
-         //  allEnemies[0].onScreen) {
-      // if(Math.round(global.game.time/10.0)%100===0) {
-      if(allEnemies[0].x>2*game.tile.width && allEnemies.length===1) {
-        allEnemies.push(
-          new Enemy( -game.tile.width, game.roadRows[2] * 83 - 19, 100 )
-        );
-      }
-    }
-
-    // function constructBottomLaneEnemies() {
-    // }
-
-    function constructEnemy() {
       allEnemies.push(
-        new Enemy(
-          -game.tile.width,
-           game.roadRows[ Math.floor(Math.random()*game.roadRows.length) ] * 83
-            - 19,
-           100  )
+        new Enemy( 5*game.tile.width, game.lane.middle*83 - 19, -100 )
       );
+      allEnemies.push(
+        new Enemy( -game.tile.width, game.lane.bottom*83 - 19, 100 )
+      );
+    }
+
+    function finalizeEnemies(signalCarrier) {
+      if(signalCarrier.x > 2*game.tile.width) {
+        allEnemies.push(
+          new Enemy( -game.tile.width, game.lane.top*83 - 19, 200 )
+        );
+        allEnemies.push(
+          new Enemy( 5*game.tile.width, game.lane.middle*83 - 19, -100 )
+        );
+        allEnemies.push(
+          new Enemy( -game.tile.width, game.lane.bottom*83 - 19, 100 )
+        );
+        allEnemies.push(
+          new Enemy( 5*game.tile.width, game.lane.grassShoulder*83 - 19, -10 )
+        );
+        game.enemiesNotFinalized = false;
+      }
     }
 
     /* This function is called by main (our game loop) and itself calls all
@@ -196,9 +189,9 @@ var Engine = (function(global) {
          * the render function you have defined.
          */
         allEnemies.forEach(function(enemy) {
-          if(enemy.onScreen) {
+          // if(enemy.onScreen) {
             enemy.render();
-          }
+          // }
         });
 
         player.render();
@@ -221,6 +214,7 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
+        'images/enemy-bug-leftward.png',
         'images/char-boy.png'
     ]);
     Resources.onReady(init);
