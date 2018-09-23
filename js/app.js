@@ -3,7 +3,8 @@
 // game global identifiers
 var game = {
   // game tile rows available for character horizontal movement
-  lane: {top: 1, middle: 2, bottom: 3, grassShoulder: 4},
+  //   water is at tile row 0, corresponding to character y = -19
+  lane: {top: 1, middle: 2, bottom: 3, grassShoulder: 4, grassBottom: 5},
   tile: {width: 101, height: 83}//,
   // time: 0
 };
@@ -59,7 +60,7 @@ Enemy.prototype.render = function() {
 function Player () {
   this.sprite = 'images/char-boy.png';
 
-  this.x = 202;
+  this.x = 2*game.tile.width;
   this.y = game.lane.grassShoulder*83-19;
   // By choice, employ same vertical sprite shift as Enemy:
   // this.y(row) = row*83 - 19.
@@ -74,15 +75,16 @@ Player.prototype.render = function() {
 };
 
 Player.prototype.handleInput = function(key) {
-  if(key==='left') {
+  if(key==='left' && this.x>0) {
     this.x -= game.tile.width;
-  } else if (key==='right') {
+  } else if (key==='right' && this.x < 4*game.tile.width) {
     this.x += game.tile.width;
-  } else if (key==='down') {
+  } else if (key==='down'  &&  this.y < game.lane.grassBottom*83 - 19) {
     this.y += game.tile.height;
-  } else if (key==='up') {
+  } else if (key==='up'  &&  this.y > -19) {
     this.y -= game.tile.height;
   }
+  console.log(this.x, this.y);
 };
 
 // Now instantiate your objects.
