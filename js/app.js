@@ -2,12 +2,34 @@
 
 // game global identifiers
 var game = {
-  // game tile rows available for character horizontal movement
-  //   water is at tile row 0, corresponding to character y = -19
-  lane: {top: 1, middle: 2, bottom: 3, grassShoulder: 4, grassBottom: 5},
+  // game board character Y positions
+  boardY: {
+    waterFront: -19,
+    topRoadLane: 83 - 19,
+    middleRoadLane: 2*83 - 19,
+    bottomRoadLane: 3*83 - 19,
+    topGrassRow: 4*83 - 19,
+    bottomGrassRow: 5*83 - 19
+  },
+// The height of the opaque part of a ground tile is effectively given by:
+//   171 - 50 = 121
+// By inspection, the enemy image is centered about this opaque part.
+// Center the enemy image about the lit part of the ground.
+// The height of the lit part of a ground is effectively 83.
+// So, the position shift to center enemy image to this lit part is:
+//   83/2 - 121/2 = -38/2 = -19
+// Note that 38 = 121 - 83 = the height of the unlit part of the ground.
+// Thus, enemy image position at row 0 is: 0 - 19 = -19.
+// Enemy image position at row 1 is: 83 - 19 = 64.
+// . . .
+// Enemy image position at row n is: n*83 - 19.
+// That is, this.y(row) = row*83 - 19.
+
   tile: {width: 101, height: 83}//,
   // time: 0
 };
+
+
 
 // Enemies our player must avoid
 function Enemy(x,y,vx) {
@@ -61,7 +83,7 @@ function Player () {
   this.sprite = 'images/char-boy.png';
 
   this.x = 2*game.tile.width;
-  this.y = game.lane.grassShoulder*83-19;
+  this.y = game.boardY.topGrassRow;
   // By choice, employ same vertical sprite shift as Enemy:
   // this.y(row) = row*83 - 19.
 };
@@ -79,9 +101,9 @@ Player.prototype.handleInput = function(key) {
     this.x -= game.tile.width;
   } else if (key==='right' && this.x < 4*game.tile.width) {
     this.x += game.tile.width;
-  } else if (key==='down'  &&  this.y < game.lane.grassBottom*83 - 19) {
+  } else if (key==='down'  &&  this.y < game.boardY.bottomGrassRow) {
     this.y += game.tile.height;
-  } else if (key==='up'  &&  this.y > -19) {
+  } else if (key==='up'  &&  this.y > game.boardY.waterFront) {
     this.y -= game.tile.height;
   }
   console.log(this.x, this.y);
