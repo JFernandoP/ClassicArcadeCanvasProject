@@ -3,7 +3,6 @@
 // game global identifiers
 var game = {
   // game tile rows available for character horizontal movement
-  enemiesNotFinalized: true,
   lane: {top: 1, middle: 2, bottom: 3, grassShoulder: 4},
   tile: {width: 101, height: 83}//,
   // time: 0
@@ -16,19 +15,7 @@ function Enemy(x,y,vx) {
 
     this.x = x;
     this.y = y;
-// The height of the opaque part of a ground tile is effectively given by:
-//   171 - 50 = 121
-// By inspection, the enemy image is centered about this opaque part.
-// Center the enemy image about the lit part of the ground.
-// The height of the lit part of a ground is effectively 83.
-// So, the position shift to center enemy image to this lit part is:
-//   83/2 - 121/2 = -38/2 = -19
-// Note that 38 = 121 - 83 = the height of the unlit part of the ground.
-// Thus, enemy image position at row 0 is: 0 - 19 = -19.
-// Enemy image position at row 1 is: 83 - 19 = 64.
-// . . .
-// Enemy image position at row n is: n*83 - 19.
-// That is, this.y(row) = row*83 - 19.
+
 
     this.vx = vx; // enemy velocity
 
@@ -39,31 +26,26 @@ function Enemy(x,y,vx) {
     } else {
       this.sprite = 'images/enemy-bug-leftward.png';
     }
-
-    // this.timeLeftScreen;
-    // this.onScreen = true;
 };
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-  // if(this.onScreen) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
-    this.x += this.vx*dt;
+  // You should multiply any movement by the dt parameter
+  // which will ensure the game runs at the same speed for
+  // all computers.
+  this.x += this.vx*dt;
 
-    if (this.vx > 0) {
-      if (this.x > ctx.canvas.width) {
-        // this.onScreen = false;
-        this.x = -game.tile.width;
-      }
-    } else {
-      if (this.x < -game.tile.width) {
-        this.x = 5*game.tile.width;
-      }
+  if (this.vx > 0) {
+    if (this.x > ctx.canvas.width) {
+      // this.onScreen = false;
+      this.x = -game.tile.width;
     }
-  // }
+  } else {
+    if (this.x < -game.tile.width) {
+      this.x = 5*game.tile.width;
+    }
+  }
 };
 
 // Draw the enemy on the screen, required method for game
@@ -78,8 +60,8 @@ function Player () {
   this.sprite = 'images/char-boy.png';
 
   this.x = 202;
-  this.y = 166-19;
-  // By choice, employ same sprite shift as Enemy:
+  this.y = game.lane.grassShoulder*83-19;
+  // By choice, employ same vertical sprite shift as Enemy:
   // this.y(row) = row*83 - 19.
 };
 
@@ -94,10 +76,6 @@ Player.prototype.render = function() {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-
-// y = n*83-19, where n is a randomly selected row of the road
-// every 20 s spawn another enemy until there are 3
-
 var allEnemies = [];
 var player = new Player();
 

@@ -22,8 +22,8 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime,
-        firstTime;
+        lastTime;
+        // firstTime;
 
     canvas.width = 505;
     canvas.height = 606;
@@ -44,9 +44,6 @@ var Engine = (function(global) {
 
         // game.time = now - firstTime;
 
-        if (game.enemiesNotFinalized) {
-          finalizeEnemies(allEnemies[1]);
-        }
         // if( Math.round(global.game.time/10.0) % 100 === 0 ) {
         //   console.log(global.game.time);
         // }
@@ -82,30 +79,38 @@ var Engine = (function(global) {
 
     function initEnemies() {
       allEnemies.push(
+        new Enemy( -7*game.tile.width, game.lane.top*83 - 19, 200 )
+      );
+      allEnemies.push(
+        new Enemy( 8*game.tile.width, game.lane.middle*83 - 19, -100 )
+      );
+      allEnemies.push(
         new Enemy( 5*game.tile.width, game.lane.middle*83 - 19, -100 )
       );
       allEnemies.push(
         new Enemy( -game.tile.width, game.lane.bottom*83 - 19, 100 )
       );
+      allEnemies.push(
+        new Enemy( -4*game.tile.width, game.lane.bottom*83 - 19, 100 )
+      );
+      allEnemies.push(
+        new Enemy( 5*game.tile.width, game.lane.grassShoulder*83 - 19, -10 )
+      );
     }
 
-    function finalizeEnemies(signalCarrier) {
-      if(signalCarrier.x > 2*game.tile.width) {
-        allEnemies.push(
-          new Enemy( -game.tile.width, game.lane.top*83 - 19, 200 )
-        );
-        allEnemies.push(
-          new Enemy( 5*game.tile.width, game.lane.middle*83 - 19, -100 )
-        );
-        allEnemies.push(
-          new Enemy( -game.tile.width, game.lane.bottom*83 - 19, 100 )
-        );
-        allEnemies.push(
-          new Enemy( 5*game.tile.width, game.lane.grassShoulder*83 - 19, -10 )
-        );
-        game.enemiesNotFinalized = false;
-      }
-    }
+// The height of the opaque part of a ground tile is effectively given by:
+//   171 - 50 = 121
+// By inspection, the enemy image is centered about this opaque part.
+// Center the enemy image about the lit part of the ground.
+// The height of the lit part of a ground is effectively 83.
+// So, the position shift to center enemy image to this lit part is:
+//   83/2 - 121/2 = -38/2 = -19
+// Note that 38 = 121 - 83 = the height of the unlit part of the ground.
+// Thus, enemy image position at row 0 is: 0 - 19 = -19.
+// Enemy image position at row 1 is: 83 - 19 = 64.
+// . . .
+// Enemy image position at row n is: n*83 - 19.
+// That is, this.y(row) = row*83 - 19.
 
     /* This function is called by main (our game loop) and itself calls all
      * of the functions which may need to update entity's data. Based on how
