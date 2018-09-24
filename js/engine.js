@@ -70,11 +70,22 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
-        reset();
+        resetStates();
         firstTime = Date.now();
         lastTime = firstTime;
-        initEnemies();
+        initCharacters();
         main();
+    }
+
+    function initCharacters() {
+      // characters instantiated here since their classes need images loaded
+      initPlayer();
+      initEnemies();
+      removeCharSpritesFromCache();
+    }
+
+    function initPlayer() {
+      player = new Player();
     }
 
     function initEnemies() {
@@ -96,6 +107,15 @@ var Engine = (function(global) {
       allEnemies.push(
         new Enemy( 5*game.tile.width, game.boardY.topGrassRow, -10 )
       );
+    }
+
+    function removeCharSpritesFromCache() {
+      // remove character sprites from cache since their instances have them
+      // condition: images must be reloaded to instantiate more of the same
+      Resources.remove('images/char-boy.png');
+      Resources.remove('images/enemy-bug.png');
+      Resources.remove('images/enemy-bug-leftward.png');
+      // no new character instances of this type are needed in this version
     }
 
     /* This function is called by main (our game loop) and itself calls all
@@ -192,7 +212,7 @@ var Engine = (function(global) {
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
      */
-    function reset() {
+    function resetStates() {
         // noop
     }
 

@@ -1,6 +1,6 @@
 'use strict'
 
-// game global identifiers
+// game global identifiers other than character classes and their instances
 var game = {
   // game board character Y positions
   boardY: {
@@ -25,10 +25,12 @@ var game = {
 // Enemy image position at row n is: n*83 - 19.
 // That is, this.y(row) = row*83 - 19.
 
+  reset: function () {
+      location.reload();
+    },
   tile: {width: 101, height: 83}//,
   // time: 0
 };
-
 
 
 // Enemies our player must avoid
@@ -39,16 +41,18 @@ function Enemy(x,y,vx) {
     this.x = x;
     this.y = y;
 
-
     this.vx = vx; // enemy velocity
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     if( this.vx > 0 ) {
-      this.sprite = 'images/enemy-bug.png';
+      this.sprite = Resources.get('images/enemy-bug.png');
     } else {
-      this.sprite = 'images/enemy-bug-leftward.png';
+      this.sprite = Resources.get('images/enemy-bug-leftward.png');
     }
+
+    // collision rectangle
+    // this.cx =
 };
 
 // Update the enemy's position, required method for game
@@ -73,14 +77,15 @@ Enemy.prototype.update = function(dt) {
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+  ctx.drawImage(this.sprite, this.x, this.y);
+  ctx.strokeRect(this.x, this.y, this.sprite.width, this.sprite.height);
 };
 
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
 function Player () {
-  this.sprite = 'images/char-boy.png';
+  this.sprite = Resources.get('images/char-boy.png');
 
   this.x = 2*game.tile.width;
   this.y = game.boardY.topGrassRow;
@@ -93,7 +98,8 @@ Player.prototype.update = function(dt) {
 };
 
 Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+  ctx.drawImage(this.sprite, this.x, this.y);
+  ctx.strokeRect(this.x, this.y, this.sprite.width, this.sprite.height);
 };
 
 Player.prototype.handleInput = function(key) {
@@ -107,7 +113,7 @@ Player.prototype.handleInput = function(key) {
     if (this.y > game.boardY.topRoadLane) {
       this.y -= game.tile.height;
     } else {
-      location.reload();
+      game.reset();
     }
   }
   console.log(this.x, this.y);
@@ -117,7 +123,7 @@ Player.prototype.handleInput = function(key) {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 var allEnemies = [];
-var player = new Player();
+var player;
 
 
 // This listens for key presses and sends the keys to your

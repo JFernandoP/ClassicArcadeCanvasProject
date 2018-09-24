@@ -78,6 +78,12 @@
         return resourceCache[url];
     }
 
+    /* Provide developer the ability to remove images from cache.
+     */
+    function remove(url) {
+      delete resourceCache[url];
+    }
+
     /* This function determines if all of the images that have been requested
      * for loading have in fact been properly loaded.
      */
@@ -105,6 +111,7 @@
     window.Resources = {
         load: load,
         get: get,
+        remove: remove,
         onReady: onReady,
         isReady: isReady
     };
