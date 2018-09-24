@@ -103,8 +103,12 @@ Player.prototype.handleInput = function(key) {
     this.x += game.tile.width;
   } else if (key==='down'  &&  this.y < game.boardY.bottomGrassRow) {
     this.y += game.tile.height;
-  } else if (key==='up'  &&  this.y > game.boardY.waterFront) {
-    this.y -= game.tile.height;
+  } else if (key==='up') {
+    if (this.y > game.boardY.topRoadLane) {
+      this.y -= game.tile.height;
+    } else {
+      location.reload();
+    }
   }
   console.log(this.x, this.y);
 };
