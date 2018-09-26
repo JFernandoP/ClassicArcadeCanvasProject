@@ -25,17 +25,13 @@ var game = {
 // Enemy image position at row n is: n*83 - 19.
 // That is, this.y(row) = row*83 - 19.
 
-  // Center coordinates of a character reference collision circle
-  collCircCenterX: function (characterX, collCirc) {
-    return characterX + collCirc.tlx + collCirc.rad;
-    // return: <circle center x> = <top-left corner x> + radius
-  },
-  collCircCenterY: function (characterY, collCirc) {
-    return characterY + collCirc.tly + collCirc.rad;
-  },
-  // Distance between two points
-  dist2pts: function (x1,y1,x2,y2) {
-    return Math.sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
+  // check whether rectangles 'a' and 'b' are in collision
+  // each argument is a rectangle side coordinate
+  coll2Rects: function (aLeft,aRight,aTop,aBottom, bLeft,bRight,bTop,bBottom) {
+    return (
+      aLeft < bRight && aRight > bLeft &&
+      aTop < bBottom && aBottom > bTop
+    );
   },
   reset: function () {
       location.reload();
@@ -63,22 +59,19 @@ function Enemy(x,y,vx) {
     this.sprite = Resources.get('images/enemy-bug-leftward.png');
   }
 
-  // The reference collision shape is the union of 4 circles. Coordinates for
-  // top-left corner of circle bounding box are (tlx, tly). These are relative
-  // to the Enemy instance current (x, y).
+  // The reference collision profile is defined by 2 rectangles. Each rectangle
+  // is defined by the coordinates of its top-left corner (tlx, tly) and its
+  // bottom-right corner (brx, bry). Corner coordinates are relative to the
+  // Enemy instance current (x, y).
   if( this.vx > 0 ) {
-    this.collCirc = [
-      { tlx: 8, tly: 83, rad: 30 },
-      { tlx: 15, tly: 83, rad: 30 },
-      { tlx: 50, tly: 83, rad: 25},
-      { tlx: 58, tly: 119, rad: 10},
+    this.collRect =  [
+      { tlx: 16, tly: 87, brx: 93, bry: 129 },
+      { tlx: 24, tly: 129, brx: 77, bry: 143 }
     ];
   } else {
-    this.collCirc = [
-      { tlx: 32, tly: 83, rad: 30 },
-      { tlx: 25, tly: 83, rad: 30 },
-      { tlx: 0, tly: 83, rad: 25},
-      { tlx: 22, tly: 119, rad: 10},
+    this.collRect =  [
+      { tlx: 8, tly: 87, brx: 85, bry: 129 },
+      { tlx: 24, tly: 129, brx: 77, bry: 143 }
     ];
   }
 };
@@ -106,7 +99,6 @@ Enemy.prototype.update = function(dt) {
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
   ctx.drawImage(this.sprite, this.x, this.y);
-  ctx.strokeRect(this.x, this.y, this.sprite.width, this.sprite.height);
 };
 
 // Now write your own player class
@@ -120,12 +112,13 @@ function Player () {
   // By choice, employ same vertical sprite shift as Enemy:
   // this.y(row) = row*83 - 19.
 
-  // The reference collision shape is the union of 2 circles. Coordinates for
-  // top-left corner of circle bounding box are (tlx, tly). These are relative
-  // to the Player instance current (x, y).
-  this.collCirc = [
-    { tlx: 12, tly: 62, rad: 34 },
-    { tlx: 32, tly: 100, rad: 20 }
+  // The reference collision profile is defined by 2 rectangles. Each rectangle
+  // is defined by the coordinates of its top-left corner (tlx, tly) and its
+  // bottom-right corner (brx, bry). Corner coordinates are relative to the
+  // Player instance current (x, y).
+  this.collRect =  [
+    { tlx: 24, tly: 66, brx: 77, bry: 121 },
+    { tlx: 36, tly: 121, brx: 66, bry: 138 }
   ];
 };
 
@@ -134,21 +127,19 @@ Player.prototype.update = function(dt) {
 };
 
 Player.prototype.collisionWithAnyEnemy = function () {
-  // loop over each circle representing player body
-  this.collCirc.forEach(function pCollCirc(playerCollCirc) {
-    // loop over each enemy
-    allEnemies.forEach(function eachEnemy(enemy) {
-      // loop over each circle representing an enemy body
-      enemy.collCirc.forEach(function eCollCirc(enemyCollCirc) {
-        // if any player circle intersects with any enemy circle
-        if (
-          game.dist2pts(
-            game.collCircCenterX(player.x, playerCollCirc),
-            game.collCircCenterY(player.y, playerCollCirc),
-            game.collCircCenterX(enemy.x, enemyCollCirc),
-            game.collCircCenterY(enemy.y, enemyCollCirc)
-          ) < playerCollCirc.rad + enemyCollCirc.rad
-        ) { // player is in collision with enemy
+  // loop over each enemy
+  allEnemies.forEach(function eachEnemy(enemy) {
+    // loop over each rectangle representing player body
+    player.collRect.forEach(function pCollRect(playerCollRect) {
+      // loop over each rectangle representing an enemy body
+      enemy.collRect.forEach(function eCollRect(enemyCollRect) {
+        // if any player rectangle intersects with any enemy rectangle
+        if ( game.coll2Rects(
+          player.x + playerCollRect.tlx, player.x + playerCollRect.brx,
+          player.y + playerCollRect.tly, player.y + playerCollRect.bry,
+          enemy.x + enemyCollRect.tlx, enemy.x + enemyCollRect.brx,
+          enemy.y + enemyCollRect.tly, enemy.y + enemyCollRect.bry
+        ) ) { // player is in collision with enemy
           game.reset();
         }
       });
@@ -158,7 +149,6 @@ Player.prototype.collisionWithAnyEnemy = function () {
 
 Player.prototype.render = function() {
   ctx.drawImage(this.sprite, this.x, this.y);
-  ctx.strokeRect(this.x, this.y, this.sprite.width, this.sprite.height);
 };
 
 Player.prototype.handleInput = function(key) {
