@@ -1,6 +1,6 @@
 'use strict'
 
-// game global identifiers other than character classes and their instances
+// game global identifiers other than character classes and their instance vars
 var game = {
   // game board character Y positions
   boardY: {
@@ -11,19 +11,19 @@ var game = {
     topGrassRow: 4*83 - 19,
     bottomGrassRow: 5*83 - 19
   },
-// The height of the opaque part of a ground tile is effectively given by:
-//   171 - 50 = 121
-// By inspection, the enemy image is centered about this opaque part.
-// Center the enemy image about the lit part of the ground.
-// The height of the lit part of a ground is effectively 83.
-// So, the position shift to center enemy image to this lit part is:
-//   83/2 - 121/2 = -38/2 = -19
-// Note that 38 = 121 - 83 = the height of the unlit part of the ground.
-// Thus, enemy image position at row 0 is: 0 - 19 = -19.
-// Enemy image position at row 1 is: 83 - 19 = 64.
-// . . .
-// Enemy image position at row n is: n*83 - 19.
-// That is, this.y(row) = row*83 - 19.
+  // The height of the opaque part of a ground tile is effectively given by:
+  //   171 - 50 = 121
+  // By inspection, the enemy image is centered about this opaque part.
+  // Center the enemy image about the lit part of the ground.
+  // The height of the lit part of a ground is effectively 83.
+  // So, the position shift to center enemy image to this lit part is:
+  //   83/2 - 121/2 = -38/2 = -19
+  // Note that 38 = 121 - 83 = the height of the unlit part of the ground.
+  // Thus, enemy image position at row 0 is: 0 - 19 = -19.
+  // Enemy image position at row 1 is: 83 - 19 = 64.
+  // . . .
+  // Enemy image position at row n is: n*83 - 19.
+  // That is, this.y(row) = row*83 - 19.
 
   // check whether rectangles 'a' and 'b' are in collision
   // each argument is a rectangle side coordinate
@@ -33,11 +33,40 @@ var game = {
       aTop < bBottom && aBottom > bTop
     );
   },
+  inProgress: true,
+  loss: false,
+  messageTime: 0,
   reset: function () {
       location.reload();
     },
-  tile: {width: 101, height: 83}//,
-  // time: 0
+  showLossMessage: function (canvas) {
+    for (var col = 0; col < 5; col++) {
+      ctx.drawImage(Resources.get('images/stone-block.png'),
+        col * game.tile.width, 0);
+      ctx.drawImage(Resources.get('images/stone-block-down.png'),
+        col * game.tile.width, game.tile.fileHeight + 2*game.tile.height);
+    }
+    ctx.fillStyle = 'gray';
+    ctx.fillRect(0,game.tile.fileHeight,canvas.width,2*game.tile.height);
+    ctx.fillStyle = 'black';
+    ctx.fillText('Avatar met an untimely death.', 2.5*game.tile.width,
+      game.tile.fileHeight+game.tile.height);
+  },
+  showWinMessage: function (canvas) {
+    for (var col = 0; col < 5; col++) {
+      ctx.drawImage(Resources.get('images/water-block.png'),
+        col * game.tile.width, 0);
+      ctx.drawImage(Resources.get('images/water-block-down.png'),
+        col * game.tile.width, game.tile.fileHeight + 2*game.tile.height);
+    }
+    ctx.fillStyle = 'cornflowerblue';
+    ctx.fillRect(0,game.tile.fileHeight,canvas.width,2*game.tile.height);
+    ctx.fillStyle = 'midnightblue';
+    ctx.fillText('Avatar swam to safety. Game won!', 2.5*game.tile.width,
+      game.tile.fileHeight+game.tile.height);
+  },
+  tile: {width: 101, height: 83, fileHeight: 171},
+  won: false
 };
 
 
@@ -45,14 +74,12 @@ var game = {
 function Enemy(x,y,vx) {
   // Variables applied to each of our instances go here,
   // we've provided one for you to get started
-
   this.x = x;
   this.y = y;
 
   this.vx = vx; // enemy velocity
 
-  // The image/sprite for our enemies, this uses
-  // a helper we've provided to easily load images
+  // The image/sprite for our enemies
   if( this.vx > 0 ) {
     this.sprite = Resources.get('images/enemy-bug.png');
   } else {
@@ -86,7 +113,6 @@ Enemy.prototype.update = function(dt) {
 
   if (this.vx > 0) {
     if (this.x > ctx.canvas.width) {
-      // this.onScreen = false;
       this.x = -game.tile.width;
     }
   } else {
@@ -123,7 +149,7 @@ function Player () {
 };
 
 Player.prototype.update = function(dt) {
-
+  // TODO: add smooth motion
 };
 
 Player.prototype.collisionWithAnyEnemy = function () {
@@ -140,7 +166,9 @@ Player.prototype.collisionWithAnyEnemy = function () {
           enemy.x + enemyCollRect.tlx, enemy.x + enemyCollRect.brx,
           enemy.y + enemyCollRect.tly, enemy.y + enemyCollRect.bry
         ) ) { // player is in collision with enemy
-          game.reset();
+          game.inProgress = false;
+          game.loss = true;
+          game.messageTime = Date.now();
         }
       });
     });
@@ -153,19 +181,25 @@ Player.prototype.render = function() {
 
 Player.prototype.handleInput = function(key) {
   if(key==='left' && this.x>0) {
+    // move left unless at farthest left column
     this.x -= game.tile.width;
   } else if (key==='right' && this.x < 4*game.tile.width) {
+    // move right unless at farthest right column
     this.x += game.tile.width;
   } else if (key==='down'  &&  this.y < game.boardY.bottomGrassRow) {
+    // move down unless at bottom row
     this.y += game.tile.height;
   } else if (key==='up') {
     if (this.y > game.boardY.topRoadLane) {
+      // move down unless at row just below water
       this.y -= game.tile.height;
     } else {
-      game.reset();
+      // if at row just below water, then moving up wins the game
+      game.inProgress = false;
+      game.won = true;
+      // game.messageTime = Date.now();
     }
   }
-  console.log(this.x, this.y);
 };
 
 // Now instantiate your objects.

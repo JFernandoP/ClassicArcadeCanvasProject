@@ -23,7 +23,6 @@ var Engine = (function(global) {
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
-        // firstTime;
 
     canvas.width = 505;
     canvas.height = 606;
@@ -42,16 +41,12 @@ var Engine = (function(global) {
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
 
-        // game.time = now - firstTime;
-
-        // if( Math.round(global.game.time/10.0) % 100 === 0 ) {
-        //   console.log(global.game.time);
-        // }
-
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
          */
-        update(dt);
+         if (game.inProgress) {
+           update(dt);
+         }
         render();
 
         /* Set our lastTime variable which is used to determine the time delta
@@ -70,15 +65,17 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
-        resetStates();
-        firstTime = Date.now();
-        lastTime = firstTime;
-        initCharacters();
-        main();
+      initCharacters();
+      initOther();
+      main();
     }
 
+    /* Characters are instantiated here since it is within the engine.
+     * Also, their classes assume their sprite image is already loaded.
+     * That assumption can easily be changed, though, kept for demonstration
+     * purposes. [1]
+     */
     function initCharacters() {
-      // characters instantiated here since their classes need images loaded
       initPlayer();
       initEnemies();
       removeCharSpritesFromCache();
@@ -90,32 +87,48 @@ var Engine = (function(global) {
 
     function initEnemies() {
       allEnemies.push(
-        new Enemy( -7*game.tile.width, game.boardY.topRoadLane, 200 )
+        new Enemy( -7*game.tile.width, game.boardY.topRoadLane, 500 )
       );
       allEnemies.push(
-        new Enemy( 8*game.tile.width, game.boardY.middleRoadLane, -100 )
+        new Enemy( 8*game.tile.width, game.boardY.middleRoadLane, -200 )
       );
       allEnemies.push(
-        new Enemy( 5*game.tile.width, game.boardY.middleRoadLane, -100 )
+        new Enemy( 5*game.tile.width, game.boardY.middleRoadLane, -200 )
       );
       allEnemies.push(
-        new Enemy( -game.tile.width, game.boardY.bottomRoadLane, 100 )
+        new Enemy( -game.tile.width, game.boardY.bottomRoadLane, 200 )
       );
       allEnemies.push(
-        new Enemy( -4*game.tile.width, game.boardY.bottomRoadLane, 100 )
+        new Enemy( -4*game.tile.width, game.boardY.bottomRoadLane, 200 )
       );
       allEnemies.push(
-        new Enemy( 5*game.tile.width, game.boardY.topGrassRow, -10 )
+        new Enemy( 5*game.tile.width, game.boardY.topGrassRow, -100 )
+      );
+      allEnemies.push(
+        new Enemy( -game.tile.width, game.boardY.bottomGrassRow, 100 )
       );
     }
 
+    /* Remove character sprites from cache since each instance is generated with
+     * a copy of its own sprite.
+     * condition: images must be reloaded to instantiate more of the same [1]
+     */
     function removeCharSpritesFromCache() {
-      // remove character sprites from cache since their instances have them
-      // condition: images must be reloaded to instantiate more of the same
       Resources.remove('images/char-boy.png');
       Resources.remove('images/enemy-bug.png');
       Resources.remove('images/enemy-bug-leftward.png');
-      // no new character instances of this type are needed in this version
+      // No new character instantiations of this type are needed in this version
+      // of the game. [1]
+    }
+
+    /* This function does nothing but it could have been a good place to
+     * handle game reset states - maybe a new game menu or a game over screen
+     * those sorts of things. It's only called once by the init() method.
+     */
+    function initOther() {
+      ctx.font = '24px Comic Sans MS, cursive, sans-serif';
+      ctx.textAlign = 'center';
+      lastTime = Date.now();
     }
 
     /* This function is called by main (our game loop) and itself calls all
@@ -167,32 +180,48 @@ var Engine = (function(global) {
                 'images/stone-block.png',   // Row 3 of 3 of stone
                 'images/grass-block.png',   // Row 1 of 2 of grass
                 'images/grass-block.png'    // Row 2 of 2 of grass
-            ],
-            numRows = 6,
-            numCols = 5,
-            row, col;
+            ];
 
         // Before drawing, clear existing canvas
         ctx.clearRect(0,0,canvas.width,canvas.height)
 
-        /* Loop through the number of rows and columns we've defined above
-         * and, using the rowImages array, draw the correct image for that
-         * portion of the "grid"
-         */
-        for (row = 0; row < numRows; row++) {
-            for (col = 0; col < numCols; col++) {
-                /* The drawImage function of the canvas' context element
-                 * requires 3 parameters: the image to draw, the x coordinate
-                 * to start drawing and the y coordinate to start drawing.
-                 * We're using our Resources helpers to refer to our images
-                 * so that we get the benefits of caching these images, since
-                 * we're using them over and over.
-                 */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+        if (game.inProgress) {
+          renderGameBoard(rowImages);
+          renderEntities();
+        } else {
+          if (game.loss) {
+            game.showLossMessage(canvas);
+            if (Date.now() - game.messageTime > 2000) {
+              game.reset();
             }
+          } else if (game.won) {
+            game.showWinMessage(canvas);
+            // TODO: make game more interesting
+          }
         }
+    }
 
-        renderEntities();
+    function renderGameBoard(rowImages) {
+      var numRows = 6,
+          numCols = 5,
+          row, col;
+      /* Loop through the number of rows and columns we've defined above
+       * and, using the rowImages array, draw the correct image for that
+       * portion of the "grid"
+       */
+      for (row = 0; row < numRows; row++) {
+          for (col = 0; col < numCols; col++) {
+              /* The drawImage function of the canvas' context element
+               * requires 3 parameters: the image to draw, the x coordinate
+               * to start drawing and the y coordinate to start drawing.
+               * We're using our Resources helpers to refer to our images
+               * so that we get the benefits of caching these images, since
+               * we're using them over and over.
+               */
+              ctx.drawImage(Resources.get(rowImages[row]),
+                col * game.tile.width, row * game.tile.height);
+          }
+      }
     }
 
     /* This function is called by the render function and is called on each game
@@ -204,20 +233,10 @@ var Engine = (function(global) {
          * the render function you have defined.
          */
         allEnemies.forEach(function(enemy) {
-          // if(enemy.onScreen) {
-            enemy.render();
-          // }
+          enemy.render();
         });
 
         player.render();
-    }
-
-    /* This function does nothing but it could have been a good place to
-     * handle game reset states - maybe a new game menu or a game over screen
-     * those sorts of things. It's only called once by the init() method.
-     */
-    function resetStates() {
-        // noop
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -226,17 +245,20 @@ var Engine = (function(global) {
      */
     Resources.load([
         'images/stone-block.png',
+        'images/stone-block-down.png',
         'images/water-block.png',
+        'images/water-block-down.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
         'images/enemy-bug-leftward.png',
         'images/char-boy.png'
     ]);
-    Resources.onReady(init);
 
     /* Assign the canvas' context object to the global variable (the window
      * object when run in a browser) so that developers can use it more easily
      * from within their app.js files.
      */
     global.ctx = ctx;
+
+    Resources.onReady(init);
 })(this);
