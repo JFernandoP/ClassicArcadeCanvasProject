@@ -25,8 +25,8 @@ var game = {
   // Enemy image position at row n is: n*83 - 19.
   // That is, this.y(row) = row*83 - 19.
 
-  // check whether rectangles 'a' and 'b' are in collision
-  // each argument is a rectangle side coordinate
+  /* Check whether rectangles 'a' and 'b' intersect.
+   * Each argument is a rectangle side coordinate. */
   coll2Rects: function (aLeft,aRight,aTop,aBottom, bLeft,bRight,bTop,bBottom) {
     return (
       aLeft < bRight && aRight > bLeft &&
@@ -36,9 +36,11 @@ var game = {
   inProgress: true,
   loss: false,
   messageTime: 0,
+  /* Reset game. */
   reset: function () {
       location.reload();
     },
+  /* Render loss message. */
   showLossMessage: function (canvas) {
     for (var col = 0; col < 5; col++) {
       ctx.drawImage(Resources.get('images/stone-block.png'),
@@ -52,6 +54,7 @@ var game = {
     ctx.fillText('Avatar met an untimely death.', 2.5*game.tile.width,
       game.tile.fileHeight+game.tile.height);
   },
+  /* Render win message. */
   showWinMessage: function (canvas) {
     for (var col = 0; col < 5; col++) {
       ctx.drawImage(Resources.get('images/water-block.png'),
@@ -152,6 +155,9 @@ Player.prototype.update = function(dt) {
   // TODO: add smooth motion
 };
 
+/* Check for any collision between player and any enemy based on whether there
+ * are any rectangles that model the player that intersect any rectangles that
+ * model an enemy. */
 Player.prototype.collisionWithAnyEnemy = function () {
   // loop over each enemy
   allEnemies.forEach(function eachEnemy(enemy) {
@@ -175,10 +181,12 @@ Player.prototype.collisionWithAnyEnemy = function () {
   });
 };
 
+/* Render player sprite. */
 Player.prototype.render = function() {
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+/* Control player 2D snap motion, including boundary and goal line effects. */
 Player.prototype.handleInput = function(key) {
   if(key==='left' && this.x>0) {
     // move left unless at farthest left column

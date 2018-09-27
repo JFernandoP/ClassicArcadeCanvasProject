@@ -70,8 +70,7 @@ var Engine = (function(global) {
       main();
     }
 
-    /* Characters are instantiated here since it is within the engine.
-     */
+    /* Characters are instantiated here since it is within the game engine. */
     function initCharacters() {
       initPlayer();
       initEnemies();
@@ -81,6 +80,8 @@ var Engine = (function(global) {
       player = new Player();
     }
 
+    /* Set initial position and constant velocity for each enemy. These
+     * conditions define the game difficulty. */
     function initEnemies() {
       allEnemies.push(
         new Enemy( -7*game.tile.width, game.boardY.topRoadLane, 500 )
@@ -109,6 +110,7 @@ var Engine = (function(global) {
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
      */
+    /* Initialize remaining game global settings */
     function initOther() {
       game.tile.fileHeight = Resources.get('images/water-block.png').height;
       ctx.font = '24px Comic Sans MS, cursive, sans-serif';
@@ -130,6 +132,7 @@ var Engine = (function(global) {
         checkCollisions();
     }
 
+    /* Check for any collision between the player and an enemy */
     function checkCollisions() {
       player.collisionWithAnyEnemy();
     }

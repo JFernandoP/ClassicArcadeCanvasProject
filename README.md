@@ -1,6 +1,21 @@
-frontend-nanodegree-arcade-game
-===============================
+## Frogger-Like Game Project
 
-Students should use this [rubric](https://review.udacity.com/#!/projects/2696458597/rubric) for self-checking their submission. Make sure the functions you write are **object-oriented** - either class functions (like Player and Enemy) or class prototype functions such as Enemy.prototype.checkCollisions, and that the keyword 'this' is used appropriately within your class and class prototype functions to refer to the object the function is called upon. Also be sure that the **readme.md** file is updated with your instructions on both how to 1. Run and 2. Play your arcade game.
+### Abstract
+This a browser game project initialized from a starter project from a Udacity
+web development course. It is a fixed-view single-player game with a top-view of
+a rectangular two-dimensional game board.
 
-For detailed instructions on how to get started, check out this [guide](https://docs.google.com/document/d/1v01aScPjSWCCWQLIpFqvg3-vXLH2e8_SZQKC8jNO0Dc/pub?embedded=true).
+### Environment and Technical Features
+The game is built with HTML, CSS and JavaScript. It has been tested with Chrome
+and Firefox. JavaScript ES 5 syntax is employed for variable and class
+definitions. An HTML canvas element renders the game graphics.
+
+### Game Description
+This is a one player game about maneuvering past a hoard of moving enemies to
+reach a target. The avatar positions are limited to fixed positions, forming a
+rectangular grid.
+
+#### &nbsp;&nbsp;&nbsp; Rules
+- The avatar cannot be moved beyond the game board boundaries.
+- A collision between the avatar and an enemy ends the game.
+- The player wins by moving the avatar to the top boundary.
