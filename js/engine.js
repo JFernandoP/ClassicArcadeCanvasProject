@@ -71,14 +71,10 @@ var Engine = (function(global) {
     }
 
     /* Characters are instantiated here since it is within the engine.
-     * Also, their classes assume their sprite image is already loaded.
-     * That assumption can easily be changed, though, kept for demonstration
-     * purposes. [1]
      */
     function initCharacters() {
       initPlayer();
       initEnemies();
-      removeCharSpritesFromCache();
     }
 
     function initPlayer() {
@@ -96,10 +92,10 @@ var Engine = (function(global) {
         new Enemy( 5*game.tile.width, game.boardY.middleRoadLane, -200 )
       );
       allEnemies.push(
-        new Enemy( -game.tile.width, game.boardY.bottomRoadLane, 200 )
+        new Enemy( game.tile.width, game.boardY.bottomRoadLane, 200 )
       );
       allEnemies.push(
-        new Enemy( -4*game.tile.width, game.boardY.bottomRoadLane, 200 )
+        new Enemy( -2*game.tile.width, game.boardY.bottomRoadLane, 200 )
       );
       allEnemies.push(
         new Enemy( 5*game.tile.width, game.boardY.topGrassRow, -100 )
@@ -109,23 +105,12 @@ var Engine = (function(global) {
       );
     }
 
-    /* Remove character sprites from cache since each instance is generated with
-     * a copy of its own sprite.
-     * condition: images must be reloaded to instantiate more of the same [1]
-     */
-    function removeCharSpritesFromCache() {
-      Resources.remove('images/char-boy.png');
-      Resources.remove('images/enemy-bug.png');
-      Resources.remove('images/enemy-bug-leftward.png');
-      // No new character instantiations of this type are needed in this version
-      // of the game. [1]
-    }
-
     /* This function does nothing but it could have been a good place to
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
      */
     function initOther() {
+      game.tile.fileHeight = Resources.get('images/water-block.png').height;
       ctx.font = '24px Comic Sans MS, cursive, sans-serif';
       ctx.textAlign = 'center';
       lastTime = Date.now();
@@ -170,23 +155,11 @@ var Engine = (function(global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
-        /* This array holds the relative URL to the image used
-         * for that particular row of the game level.
-         */
-        var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
-            ];
-
         // Before drawing, clear existing canvas
         ctx.clearRect(0,0,canvas.width,canvas.height)
 
         if (game.inProgress) {
-          renderGameBoard(rowImages);
+          renderGameBoard();
           renderEntities();
         } else {
           if (game.loss) {
@@ -201,10 +174,21 @@ var Engine = (function(global) {
         }
     }
 
-    function renderGameBoard(rowImages) {
-      var numRows = 6,
-          numCols = 5,
-          row, col;
+    function renderGameBoard() {
+      /* This array holds the relative URL to the image used
+       * for that particular row of the game level.
+       */
+      var rowImages = [
+              'images/water-block.png',   // Top row is water
+              'images/stone-block.png',   // Row 1 of 3 of stone
+              'images/stone-block.png',   // Row 2 of 3 of stone
+              'images/stone-block.png',   // Row 3 of 3 of stone
+              'images/grass-block.png',   // Row 1 of 2 of grass
+              'images/grass-block.png'    // Row 2 of 2 of grass
+          ];
+
+      var row, col, numRows = 6, numCols = 5;
+
       /* Loop through the number of rows and columns we've defined above
        * and, using the rowImages array, draw the correct image for that
        * portion of the "grid"

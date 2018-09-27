@@ -81,9 +81,9 @@ function Enemy(x,y,vx) {
 
   // The image/sprite for our enemies
   if( this.vx > 0 ) {
-    this.sprite = Resources.get('images/enemy-bug.png');
+    this.sprite = 'images/enemy-bug.png';
   } else {
-    this.sprite = Resources.get('images/enemy-bug-leftward.png');
+    this.sprite = 'images/enemy-bug-leftward.png';
   }
 
   // The reference collision profile is defined by 2 rectangles. Each rectangle
@@ -124,14 +124,14 @@ Enemy.prototype.update = function(dt) {
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
-  ctx.drawImage(this.sprite, this.x, this.y);
+  ctx.drawImage( Resources.get(this.sprite), this.x, this.y );
 };
 
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
 function Player () {
-  this.sprite = Resources.get('images/char-boy.png');
+  this.sprite = 'images/char-boy.png';
 
   this.x = 2*game.tile.width;
   this.y = game.boardY.topGrassRow;
@@ -176,7 +176,7 @@ Player.prototype.collisionWithAnyEnemy = function () {
 };
 
 Player.prototype.render = function() {
-  ctx.drawImage(this.sprite, this.x, this.y);
+  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 Player.prototype.handleInput = function(key) {
